@@ -15,37 +15,37 @@ namespace SP2
         {
 
             #region Testing
-            //Nation china = new Nation
-            //{
-            //    Name = "中华人民共和国",
-            //    URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/",
-            //    Type = "Nation",
-            //};
-            //china.Start();
-
-            Province hebei = new Province()
+            Nation china = new Nation
             {
-                Name = "河北省",
-                URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/13.html",
-                Type = "Province",
+                Name = "中华人民共和国",
+                URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/",
+                Type = "Nation",
             };
-            hebei.Start();
+            china.Start();
+
+            //Province hebei = new Province()
+            //{
+            //    Name = "河北省",
+            //    URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/13.html",
+            //    Type = "Province",
+            //};
+            //hebei.Start();
 
             //City shijiazhuang = new City()
             //{
-            //    Name = "石家庄",
-            //    URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/13/1301.html",
+            //    Name = "佛山市",
+            //    URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/44/4406.html",
             //    Type = "City"
             //};
             //shijiazhuang.Start();
 
-            //County changanqu = new County()
+            //county changanqu = new county()
             //{
-            //    Name = "长安区",
-            //    URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/13/01/130102.html",
-            //    Type = "County"
+            //    name = "长安区",
+            //    url = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/13/01/130102.html",
+            //    type = "county"
             //};
-            //changanqu.Start();
+            //changanqu.start();
 
             //Town jianbeijiedaobanshichu = new Town()
             //{
@@ -68,8 +68,8 @@ namespace SP2
         public string Type { get; set; }
         public string Code { get; set; }
         public bool Traversed = false;
-        public int ChildrenShouldHas = 0;
-        public int ChildrenCurrentHas = 0;
+        public int ChildrenShouldHas;
+        public int ChildrenCurrentHas;
 
         public Place Father { get; set; }
         public List<Place> Children = new List<Place>();
@@ -84,10 +84,31 @@ namespace SP2
 
         public void Start()
         {
-            Console.WriteLine(GetFullName());
+            //Console.WriteLine(GetFullName());
+
+            //Console.WriteLine(GetFullName());
             if (URL != null)
             {
                 Download();
+            }
+            else
+            {
+                Traversed = true;
+                
+                //Console.WriteLine(GetFullName());
+                Father.ChildrenCurrentHas++;
+                Console.WriteLine("    " + Name + " | " + Father.GetFullName() + " : " + Father.ChildrenCurrentHas + '/' + Father.ChildrenShouldHas);
+            }
+            if (Father != null)
+            {
+
+                if (Father.ChildrenCurrentHas == Father.ChildrenShouldHas)
+                {
+
+                    Father.Traversed = true;
+                    //if (Father.Type == "Province" || Father.Type == "Nation" || Father.Type == "City")
+                    Console.WriteLine(">>> " + Father.GetFullName());
+                }
             }
         }
 
@@ -312,17 +333,17 @@ namespace SP2
                 //Console.WriteLine(village.GetFullName());
             }
 
-            
+
 
             base.OnDownloadSuccess(sender, e);
         }
     }
     class Village : Place
     {
-        public Village()
-        {
-            Traversed = true;
-        }
+        //public Village()
+        //{
+        //    Traversed = true;
+        //}
         public string CXType { get; set; }
         public override void OnDownloadSuccess(object sender, DownloadStringCompletedEventArgs e)
         {
