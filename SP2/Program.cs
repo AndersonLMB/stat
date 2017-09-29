@@ -15,13 +15,13 @@ namespace SP2
         {
 
             #region Testing
-            Nation china = new Nation
-            {
-                Name = "中华人民共和国",
-                URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/",
-                Type = "Nation",
-            };
-            china.Start();
+            //Nation china = new Nation
+            //{
+            //    Name = "中华人民共和国",
+            //    URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/",
+            //    Type = "Nation",
+            //};
+            //china.Start();
 
             Province hebei = new Province()
             {
@@ -31,29 +31,29 @@ namespace SP2
             };
             hebei.Start();
 
-            City shijiazhuang = new City()
-            {
-                Name = "石家庄",
-                URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/13/1301.html",
-                Type = "City"
-            };
-            shijiazhuang.Start();
+            //City shijiazhuang = new City()
+            //{
+            //    Name = "石家庄",
+            //    URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/13/1301.html",
+            //    Type = "City"
+            //};
+            //shijiazhuang.Start();
 
-            County changanqu = new County()
-            {
-                Name = "长安区",
-                URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/13/01/130102.html",
-                Type = "County"
-            };
-            changanqu.Start();
+            //County changanqu = new County()
+            //{
+            //    Name = "长安区",
+            //    URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/13/01/130102.html",
+            //    Type = "County"
+            //};
+            //changanqu.Start();
 
-            Town jianbeijiedaobanshichu = new Town()
-            {
-                Name = "建北街道办事处",
-                URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/13/01/02/130102001.html",
-                Type = "Town"
-            };
-            jianbeijiedaobanshichu.Start();
+            //Town jianbeijiedaobanshichu = new Town()
+            //{
+            //    Name = "建北街道办事处",
+            //    URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/13/01/02/130102001.html",
+            //    Type = "Town"
+            //};
+            //jianbeijiedaobanshichu.Start();
             #endregion
 
             Console.WriteLine("Press any key to continue");
@@ -67,6 +67,9 @@ namespace SP2
         public string URL { get; set; }
         public string Type { get; set; }
         public string Code { get; set; }
+        public bool Traversed = false;
+        public int ChildrenShouldHas = 0;
+        public int ChildrenCurrentHas = 0;
 
         public Place Father { get; set; }
         public List<Place> Children = new List<Place>();
@@ -76,13 +79,20 @@ namespace SP2
 
         public void Start()
         {
-            Download();
+            Console.WriteLine(GetFullName());
+            if (URL != null)
+            {
+                Download();
+            }
         }
 
         public void Download()
         {
+
             WebClient client = new WebClient();
+
             client.DownloadStringAsync(new Uri(URL));
+            //client.DownloadString(new Uri(URL));
             client.DownloadStringCompleted += (sender, e) =>
             {
                 if (e.Error == null)
@@ -114,6 +124,7 @@ namespace SP2
         {
             CQ doc = e.Result;
             CQ elements = doc[".provincetr a"];
+            ChildrenShouldHas = elements.Length;
             foreach (var element in elements)
             {
                 Province province = new Province
@@ -124,7 +135,9 @@ namespace SP2
                     Type = "Province"
                 };
                 Children.Add(province);
-                Console.WriteLine(province.GetFullName());
+                province.Start();
+                //Console.WriteLine(province.GetFullName());
+                base.OnDownloadSuccess(sender, e);
             }
         }
     }
@@ -135,6 +148,7 @@ namespace SP2
         {
             CQ doc = e.Result;
             CQ elements = doc[".citytr"];
+            ChildrenShouldHas = elements.Length;
             foreach (var element in elements)
             {
                 #region converting url
@@ -155,9 +169,12 @@ namespace SP2
                     URL = newString
                 };
                 Children.Add(city);
-                Console.WriteLine(city.GetFullName());
+                city.Start();
+                //Console.WriteLine(city.GetFullName());
                 //URL = element.FirstChild.FirstChild.Attributes.GetAttribute("href");
+
             }
+            base.OnDownloadSuccess(sender, e);
         }
     }
 
@@ -165,9 +182,9 @@ namespace SP2
     {
         public override void OnDownloadSuccess(object sender, DownloadStringCompletedEventArgs e)
         {
-            base.OnDownloadSuccess(sender, e);
             CQ doc = e.Result;
             CQ elements = doc[".countytr"];
+            ChildrenShouldHas = elements.Length;
             foreach (var element in elements)
             {
                 County county;
@@ -202,7 +219,10 @@ namespace SP2
                     };
                 }
                 Children.Add(county);
-                Console.WriteLine(county.GetFullName());
+                county.Start();
+                //Console.WriteLine(county.GetFullName());
+                base.OnDownloadSuccess(sender, e);
+
             }
         }
     }
@@ -211,9 +231,9 @@ namespace SP2
     {
         public override void OnDownloadSuccess(object sender, DownloadStringCompletedEventArgs e)
         {
-            base.OnDownloadSuccess(sender, e);
             CQ doc = e.Result;
             CQ elements = doc[".towntr"];
+            ChildrenShouldHas = elements.Length;
             foreach (var element in elements)
             {
                 Town town;
@@ -248,7 +268,12 @@ namespace SP2
                     };
                 }
                 Children.Add(town);
-                Console.WriteLine(town.GetFullName());
+
+
+                town.Start();
+                //Console.WriteLine(town.GetFullName());
+                base.OnDownloadSuccess(sender, e);
+
             }
         }
     }
@@ -257,9 +282,9 @@ namespace SP2
     {
         public override void OnDownloadSuccess(object sender, DownloadStringCompletedEventArgs e)
         {
-            base.OnDownloadSuccess(sender, e);
             CQ doc = e.Result;
             CQ elements = doc[".villagetr"];
+            ChildrenShouldHas = elements.Length;
             foreach (var element in elements)
             {
                 Village village = new Village()
@@ -271,12 +296,22 @@ namespace SP2
                     Father = this
                 };
                 Children.Add(village);
-                Console.WriteLine(village.GetFullName());
+                village.Start();
+
+                //Console.WriteLine(village.GetFullName());
             }
+
+            
+
+            base.OnDownloadSuccess(sender, e);
         }
     }
     class Village : Place
     {
+        public Village()
+        {
+            Traversed = true;
+        }
         public string CXType { get; set; }
         public override void OnDownloadSuccess(object sender, DownloadStringCompletedEventArgs e)
         {
