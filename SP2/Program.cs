@@ -6,9 +6,25 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Net;
 using CsQuery;
+using Dapper;
+using Npgsql;
+using System.Configuration;
+using System.IO;
 
 namespace SP2
 {
+    public static class DB
+    {
+
+        public static NpgsqlConnection Connection = new NpgsqlConnection(ConfigurationManager.ConnectionStrings["users"].ConnectionString);
+
+    }
+
+    public static class TXT
+    {
+        public static StreamWriter writer = new StreamWriter("C:\test\file.txt");
+    }
+
     class Program
     {
         static void Main(string[] args)
@@ -70,6 +86,7 @@ namespace SP2
         public bool Traversed = false;
         public int ChildrenShouldHas;
         public int ChildrenCurrentHas;
+        public string CXType { get; set; }
 
         public Place Father { get; set; }
         public List<Place> Children = new List<Place>();
@@ -77,6 +94,7 @@ namespace SP2
         public void AppendChildPlace(Place place)
         {
             Children.Add(place);
+
         }
 
 
@@ -84,6 +102,9 @@ namespace SP2
 
         public void Start()
         {
+            Console.WriteLine(GetFullName());
+            //SaveToDatabase();
+            //SaveToTXT();
             //Console.WriteLine(GetFullName());
 
             //Console.WriteLine(GetFullName());
@@ -94,7 +115,7 @@ namespace SP2
             else
             {
                 Traversed = true;
-                
+
                 //Console.WriteLine(GetFullName());
                 Father.ChildrenCurrentHas++;
                 Console.WriteLine("    " + Name + " | " + Father.GetFullName() + " : " + Father.ChildrenCurrentHas + '/' + Father.ChildrenShouldHas);
@@ -110,6 +131,60 @@ namespace SP2
                     Console.WriteLine(">>> " + Father.GetFullName());
                 }
             }
+        }
+        private void SaveToTXT()
+        {
+            TXT.writer.WriteLine(GetFullName() + "\t" + Name + "\t" + Type + "\t" + Father.GetFullName() + "\t" + Code + "\t" + CXType + "\t");
+        }
+
+        private void SaveToDatabase()
+        {
+            //string sql = " ";
+            //switch (Type)
+            //{
+            //    case "Nation":
+            //        sql = "INSERT INTO place.nations(nationfullname,nationname) VALUES( '" + GetFullName() + "' , '" + Name + "' );";
+            //        break;
+            //    case "Province":
+            //        sql = "INSERT INTO place.provinces(provincefullname,provincename,provincefather) VALUES( '" + GetFullName() + "' , '" + Name + "' , '" + Father.GetFullName() + "' );";
+            //        break;
+            //    case "City":
+            //        sql = "INSERT INTO place.cities(cityfullname,cityname,cityfather,citycode) VALUES( '" + GetFullName() + "' , '" + Name + "' , '" + Father.GetFullName() + "' , '" + Code + "' );";
+            //        break;
+            //    case "County":
+            //        sql = "INSERT INTO place.counties(countyfullname,countyname,countyfather,countycode) VALUES( '" + GetFullName() + "' , '" + Name + "' , '" + Father.GetFullName() + "' , '" + Code + "' );";
+            //        break;
+            //    case "Town":
+            //        sql = "INSERT INTO place.towns(townfullname,townname,townfather,towncode) VALUES( '" + GetFullName() + "' , '" + Name + "' , '" + Father.GetFullName() + "' , '" + Code + "' );";
+            //        break;
+            //    case "Village":
+            //        sql = "INSERT INTO place.villages(villagefullname,villagename,villagefather,villagecode) VALUES( '" + GetFullName() + "' , '" + Name + "' , '" + Father.GetFullName() + "' , '" + Code + "' , '" + CXType + "' );";
+            //        break;
+            //    default:
+            //        sql = "";
+            //        break;
+            //}
+
+
+            string sql = "INSERT INTO public.placestable(placefullname,placename,placetype,placecode,placefather) VALUES( '" + GetFullName() + "' , '" + Name + "' , '" + Type + "' , '" + (Code == null ? "non" : Code) + "' , '" + (Father == null ? "non" : Father.GetFullName()) + "' );";
+            //Console.WriteLine(sql);
+            //try { }
+            //catch { }
+            try
+            {
+                var count = DB.Connection.Execute(sql);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERR >" + GetFullName());
+                //Console.WriteLine(ex);
+
+            }
+
+            //Console.WriteLine(count);
+            ;
+            //var count = DB.Connection.Execute(sql, new { a = GetFullName(), b = Name, c = Type, d = Code == null ? "" : Code });
+
         }
 
         public void Download()
@@ -344,7 +419,7 @@ namespace SP2
         //{
         //    Traversed = true;
         //}
-        public string CXType { get; set; }
+
         public override void OnDownloadSuccess(object sender, DownloadStringCompletedEventArgs e)
         {
             base.OnDownloadSuccess(sender, e);
