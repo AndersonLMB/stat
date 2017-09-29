@@ -74,6 +74,11 @@ namespace SP2
         public Place Father { get; set; }
         public List<Place> Children = new List<Place>();
 
+        public void AppendChildPlace(Place place)
+        {
+            Children.Add(place);
+        }
+
 
         public string GetFullName() => Father != null ? Father.GetFullName() + Name : Name;
 
@@ -134,7 +139,9 @@ namespace SP2
                     URL = URL + element.Attributes.GetAttribute("href"),
                     Type = "Province"
                 };
-                Children.Add(province);
+
+                //Children.Add(province);
+                AppendChildPlace(province);
                 province.Start();
                 //Console.WriteLine(province.GetFullName());
                 base.OnDownloadSuccess(sender, e);
@@ -168,7 +175,8 @@ namespace SP2
                     Type = "City",
                     URL = newString
                 };
-                Children.Add(city);
+                AppendChildPlace(city);
+                //Children.Add(city);
                 city.Start();
                 //Console.WriteLine(city.GetFullName());
                 //URL = element.FirstChild.FirstChild.Attributes.GetAttribute("href");
@@ -218,7 +226,8 @@ namespace SP2
                         Type = "County"
                     };
                 }
-                Children.Add(county);
+                //Children.Add(county);
+                AppendChildPlace(county);
                 county.Start();
                 //Console.WriteLine(county.GetFullName());
                 base.OnDownloadSuccess(sender, e);
@@ -267,7 +276,8 @@ namespace SP2
                         Type = "Town"
                     };
                 }
-                Children.Add(town);
+                //Children.Add(town);
+                AppendChildPlace(town);
 
 
                 town.Start();
@@ -295,7 +305,8 @@ namespace SP2
                     Type = "Village",
                     Father = this
                 };
-                Children.Add(village);
+                //Children.Add(village);
+                AppendChildPlace(village);
                 village.Start();
 
                 //Console.WriteLine(village.GetFullName());
