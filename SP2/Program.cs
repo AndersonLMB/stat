@@ -15,14 +15,36 @@ namespace SP2
 {
     public static class DB
     {
-
         public static NpgsqlConnection Connection = new NpgsqlConnection(ConfigurationManager.ConnectionStrings["users"].ConnectionString);
-
     }
 
     public static class TXT
     {
-        public static StreamWriter writer = new StreamWriter("C:\test\file.txt");
+        //public static string path = @"c:\temp\mytest.txt";
+        public static StreamWriter SW = new StreamWriter("C:\\temp\\mytest.sql");
+        public static Queue<string> SqlQuene = new Queue<string>();
+        public static bool IsWritinng = false;
+        public static void WriteSQL(string sql)
+        {
+            SqlQuene.Enqueue(sql);
+            if (!IsWritinng)
+            {
+                WriteFile();
+            }
+        }
+        public static void WriteFile()
+        {
+            IsWritinng = true;
+            SW.WriteLine(SqlQuene.Dequeue());
+            if (SqlQuene.Count > 0)
+            {
+                WriteFile();
+            }
+            else
+            {
+                IsWritinng = false;
+            }
+        }
     }
 
     class Program
@@ -38,6 +60,30 @@ namespace SP2
                 Type = "Nation",
             };
             china.Start();
+            //try
+            //{
+
+            //    //Pass the filepath and filename to the StreamWriter Constructor
+            //    StreamWriter sw = new StreamWriter("C:\\temp\\mytest.txt");
+
+            //    //Write a line of text
+            //    sw.WriteLine("Hello World!!");
+
+            //    //Write a second line of text
+            //    sw.WriteLine("From the StreamWriter class");
+
+            //    //Close the file
+            //    sw.Close();
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine("Exception: " + e.Message);
+            //}
+            //finally
+            //{
+            //    Console.WriteLine("Executing finally block.");
+            //}
+
 
             //Province hebei = new Province()
             //{
@@ -102,8 +148,8 @@ namespace SP2
 
         public void Start()
         {
-            Console.WriteLine(GetFullName());
-            //SaveToDatabase();
+            //Console.WriteLine(GetFullName());
+            SaveToDatabase();
             //SaveToTXT();
             //Console.WriteLine(GetFullName());
 
@@ -118,7 +164,7 @@ namespace SP2
 
                 //Console.WriteLine(GetFullName());
                 Father.ChildrenCurrentHas++;
-                Console.WriteLine("    " + Name + " | " + Father.GetFullName() + " : " + Father.ChildrenCurrentHas + '/' + Father.ChildrenShouldHas);
+                //Console.WriteLine("    " + Name + " | " + Father.GetFullName() + " : " + Father.ChildrenCurrentHas + '/' + Father.ChildrenShouldHas);
             }
             if (Father != null)
             {
@@ -127,14 +173,19 @@ namespace SP2
                 {
 
                     Father.Traversed = true;
+                    ;
                     //if (Father.Type == "Province" || Father.Type == "Nation" || Father.Type == "City")
-                    Console.WriteLine(">>> " + Father.GetFullName());
+                    //{
+                    //    Console.WriteLine(Father.GetFullName() + " traversed");
+                    //    TXT.FinalWrite();
+                    //}
+                    //Console.WriteLine(">>> " + Father.GetFullName());
                 }
             }
         }
         private void SaveToTXT()
         {
-            TXT.writer.WriteLine(GetFullName() + "\t" + Name + "\t" + Type + "\t" + Father.GetFullName() + "\t" + Code + "\t" + CXType + "\t");
+            //TXT.writer.WriteLine(GetFullName() + "\t" + Name + "\t" + Type + "\t" + Father.GetFullName() + "\t" + Code + "\t" + CXType + "\t");
         }
 
         private void SaveToDatabase()
@@ -170,16 +221,18 @@ namespace SP2
             //Console.WriteLine(sql);
             //try { }
             //catch { }
-            try
-            {
-                var count = DB.Connection.Execute(sql);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("ERR >" + GetFullName());
-                //Console.WriteLine(ex);
+            TXT.WriteSQL(sql);
+            Console.WriteLine("  >>  " + sql);
+            //try
+            //{
+            //    var count = DB.Connection.Execute(sql);
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine("ERR >" + GetFullName());
+            //    //Console.WriteLine(ex);
 
-            }
+            //}
 
             //Console.WriteLine(count);
             ;
@@ -191,7 +244,6 @@ namespace SP2
         {
 
             WebClient client = new WebClient();
-
             client.DownloadStringAsync(new Uri(URL));
             //client.DownloadString(new Uri(URL));
             client.DownloadStringCompleted += (sender, e) =>
