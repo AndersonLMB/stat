@@ -26,6 +26,7 @@ namespace SP2
         public static bool IsWritinng = false;
         public static void WriteSQL(string sql)
         {
+            Console.WriteLine(sql);
             SqlQuene.Enqueue(sql);
             if (!IsWritinng)
             {
@@ -35,9 +36,10 @@ namespace SP2
         public static void WriteFile()
         {
             IsWritinng = true;
-            SW.WriteLine(SqlQuene.Dequeue());
+            //SW.WriteLine(SqlQuene.Dequeue());
             if (SqlQuene.Count > 0)
             {
+                SW.WriteLine(SqlQuene.Dequeue());
                 WriteFile();
             }
             else
@@ -148,6 +150,8 @@ namespace SP2
 
         public void Start()
         {
+            //TXT.WriteSQL("UPDATE public.placestable SET placeurl = '" + URL + "' WHERE placefullname='" + GetFullName() + "' ;");
+
             //Console.WriteLine(GetFullName());
             SaveToDatabase();
             //SaveToTXT();
@@ -162,6 +166,8 @@ namespace SP2
             {
                 Traversed = true;
 
+                TXT.WriteSQL("UPDATE public.placestable SET placetraversed = true WHERE placefullname='" + GetFullName() + "' ;");
+
                 //Console.WriteLine(GetFullName());
                 Father.ChildrenCurrentHas++;
                 //Console.WriteLine("    " + Name + " | " + Father.GetFullName() + " : " + Father.ChildrenCurrentHas + '/' + Father.ChildrenShouldHas);
@@ -173,6 +179,7 @@ namespace SP2
                 {
 
                     Father.Traversed = true;
+                    TXT.WriteSQL("UPDATE public.placestable SET placetraversed = true WHERE placefullname='" + Father.GetFullName() + "' ;");
                     ;
                     //if (Father.Type == "Province" || Father.Type == "Nation" || Father.Type == "City")
                     //{
@@ -218,11 +225,13 @@ namespace SP2
 
 
             string sql = "INSERT INTO public.placestable(placefullname,placename,placetype,placecode,placefather) VALUES( '" + GetFullName() + "' , '" + Name + "' , '" + Type + "' , '" + (Code == null ? "non" : Code) + "' , '" + (Father == null ? "non" : Father.GetFullName()) + "' );";
+            
             //Console.WriteLine(sql);
             //try { }
             //catch { }
             TXT.WriteSQL(sql);
-            Console.WriteLine("  >>  " + sql);
+            TXT.WriteSQL("UPDATE public.placestable SET placeurl = '" + URL + "' WHERE placefullname='" + GetFullName() + "' ;");
+            //Console.WriteLine("  >>  " + sql);
             //try
             //{
             //    var count = DB.Connection.Execute(sql);
@@ -278,6 +287,7 @@ namespace SP2
             CQ doc = e.Result;
             CQ elements = doc[".provincetr a"];
             ChildrenShouldHas = elements.Length;
+            TXT.WriteSQL("UPDATE public.placestable SET placeson = " + ChildrenShouldHas + " WHERE placefullname='" + GetFullName() + "' ;");
             foreach (var element in elements)
             {
                 Province province = new Province
@@ -304,6 +314,7 @@ namespace SP2
             CQ doc = e.Result;
             CQ elements = doc[".citytr"];
             ChildrenShouldHas = elements.Length;
+            TXT.WriteSQL("UPDATE public.placestable SET placeson = " + ChildrenShouldHas + " WHERE placefullname='" + GetFullName() + "' ;");
             foreach (var element in elements)
             {
                 #region converting url
@@ -341,6 +352,7 @@ namespace SP2
             CQ doc = e.Result;
             CQ elements = doc[".countytr"];
             ChildrenShouldHas = elements.Length;
+            TXT.WriteSQL("UPDATE public.placestable SET placeson = " + ChildrenShouldHas + " WHERE placefullname='" + GetFullName() + "' ;");
             foreach (var element in elements)
             {
                 County county;
@@ -391,6 +403,7 @@ namespace SP2
             CQ doc = e.Result;
             CQ elements = doc[".towntr"];
             ChildrenShouldHas = elements.Length;
+            TXT.WriteSQL("UPDATE public.placestable SET placeson = " + ChildrenShouldHas + " WHERE placefullname='" + GetFullName() + "' ;");
             foreach (var element in elements)
             {
                 Town town;
@@ -443,6 +456,7 @@ namespace SP2
             CQ doc = e.Result;
             CQ elements = doc[".villagetr"];
             ChildrenShouldHas = elements.Length;
+            TXT.WriteSQL("UPDATE public.placestable SET placeson = " + ChildrenShouldHas + " WHERE placefullname='" + GetFullName() + "' ;");
             foreach (var element in elements)
             {
                 Village village = new Village()
