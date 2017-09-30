@@ -20,6 +20,7 @@ namespace SP2
 
     public static class TXT
     {
+
         //public static string path = @"c:\temp\mytest.txt";
         public static StreamWriter SW = new StreamWriter("C:\\temp\\mytest.sql");
         public static Queue<string> SqlQuene = new Queue<string>();
@@ -225,7 +226,7 @@ namespace SP2
 
 
             string sql = "INSERT INTO public.placestable(placefullname,placename,placetype,placecode,placefather) VALUES( '" + GetFullName() + "' , '" + Name + "' , '" + Type + "' , '" + (Code == null ? "non" : Code) + "' , '" + (Father == null ? "non" : Father.GetFullName()) + "' );";
-            
+
             //Console.WriteLine(sql);
             //try { }
             //catch { }
@@ -253,6 +254,8 @@ namespace SP2
         {
 
             WebClient client = new WebClient();
+            //var result = client.DownloadData(new Uri(URL));
+            //string result = client.DownloadString(new Uri(URL));
             client.DownloadStringAsync(new Uri(URL));
             //client.DownloadString(new Uri(URL));
             client.DownloadStringCompleted += (sender, e) =>
