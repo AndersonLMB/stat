@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections;
 using System.Web;
 using System.Net;
 using System.Net.Http;
@@ -13,9 +14,41 @@ namespace SP3
     {
         Nation, Province, City, County, Town, Village
     }
+    public delegate void TraversedDelegate(object sender, TraversedEventArgs e);
+    public delegate void PageSuccessDelegate(object sender, PageSuccessEventArgs e);
 
-    class Place
+    public class PageSuccessEventArgs
     {
+        public Place ThisPlace = new Place();
+        public List<Place> ThisChildrenPlace = new List<Place>();
+        public PageSuccessEventArgs(Place place)
+        {
+            ThisPlace = place;
+            ThisChildrenPlace = place.ChildrenCollection;
+        }
+        public string TestPrint
+        {
+            get
+            {
+                return null;
+            }
+
+            set {; }
+        }
+    }
+
+    public class TraversedEventArgs
+    {
+        public Place ThisPlace { get; set; }
+        public TraversedEventArgs()
+        {
+
+        }
+    }
+
+    public class Place
+    {
+
         public string Name { get; set; }
         public string URL { get; set; }
         public string Code { get; set; }
@@ -24,20 +57,60 @@ namespace SP3
         public Place Father { get; set; }
         public List<Place> ChildrenCollection { get; set; }
 
+        protected int ChildrenShouldHas { get; set; }
+
+        public int ChildrenCurrentTraversed { get; set; }
+
+        private int _childrenCurrentTraversed = 0;
+
+        protected int GetChildrenCurrentTraversed()
+        {
+            return _childrenCurrentTraversed;
+        }
+
+        protected void SetChildrenCurrentTraversed(int value)
+        {
+            _childrenCurrentTraversed = value;
+        }
+
         public bool PageSuccess { get; set; }
-        public bool Traversed { get; set; }
+
+        private bool _traversed = false;
+        public bool Traversed
+        {
+            get { return _traversed; }
+            set
+            {
+                _traversed = value;
+                if (value)
+                {
+                    Console.WriteLine(this.ToString() + " traversed");
+                    if (Father != null)
+                    {
+                        Father.ChildrenCurrentTraversed++;
+                        Console.WriteLine(Father.FullName() + " " + Father.ChildrenCurrentTraversed + "/" + Father.ChildrenShouldHas);
+                        if (Father.ChildrenShouldHas == Father.ChildrenCurrentTraversed)
+                        {
+                            Father.Traversed = true;
+                        }
+                    }
+                }
+            }
+        }
 
         public Place()
         {
+            ChildrenCurrentTraversed = 0;
             Traversed = false;
-
         }
 
+        public event PageSuccessDelegate OnPageSuccess;
+
+        public event TraversedDelegate OnTraversed;
 
         public async Task ClickInAsync()
         {
             WebClient client = new WebClient();
-
             string a = await client.DownloadStringTaskAsync(URL);
             Console.WriteLine(a);
         }
@@ -45,7 +118,6 @@ namespace SP3
         public void Start()
         {
             TryGetPage();
-
         }
 
         private void TryGetPage()
@@ -54,7 +126,6 @@ namespace SP3
             client.DownloadStringCompleted -= OnDownloaded;
             client.DownloadStringAsync(new Uri(URL));
             client.DownloadStringCompleted += OnDownloaded;
-
         }
 
         private void OnDownloaded(object sender, DownloadStringCompletedEventArgs e)
@@ -67,12 +138,17 @@ namespace SP3
             else
             {
                 OnDownloadSuccess(e.Result);
+                PageSuccess = true;
+                if (OnPageSuccess != null)
+                {
+                    PageSuccessEventArgs pageSuccessEventArgs = new PageSuccessEventArgs(this);
+                    OnPageSuccess(this, pageSuccessEventArgs);
+                }
             }
         }
         private void OnDownloadSuccess(string result)
         {
             ChildrenCollection = TryGetChildren(result);
-
         }
 
         public virtual List<Place> TryGetChildren(string result)
@@ -80,10 +156,6 @@ namespace SP3
             return null;
         }
 
-        private void OnGetPage()
-        {
-
-        }
         public string FullName() => Father != null ? Father.FullName() + Name : Name;
         public string FullName(string split) => Father != null ? Father.FullName() + split + Name : Name;
         public string FullName(char split) => Father != null ? Father.FullName() + split + Name : Name;
@@ -105,18 +177,20 @@ namespace SP3
         public override List<Place> TryGetChildren(string htmlResult)
         {
             CQ elements = new CQ(htmlResult)[".provincetr a"];
+            ChildrenShouldHas = elements.Length;
             List<Place> provinces = new List<Place>();
             foreach (var element in elements)
             {
                 ProvincePlace province = new ProvincePlace
                 {
+                    Father = this,
                     Name = element.FirstChild.ToString()
                 };
                 if (element.HasAttribute("href"))
                 {
                     province.URL = this.URL + element.Attributes.GetAttribute("href");
                 }
-                province.Father = this;
+
                 provinces.Add(province);
             }
             return provinces;
@@ -132,15 +206,21 @@ namespace SP3
         public override List<Place> TryGetChildren(string htmlResult)
         {
             CQ elements = new CQ(htmlResult)[".citytr"];
+            ChildrenShouldHas = elements.Length;
             List<Place> cities = new List<Place>();
             foreach (var element in elements)
             {
                 CityPlace city = new CityPlace()
                 {
+                    Father = this,
                     Name = element.ChildNodes[1].FirstChild.FirstChild.ToString(),
                     Code = element.FirstChild.FirstChild.FirstChild.ToString(),
                 };
-                city.Father = this;
+
+                if (city.Father.Code == null)
+                {
+                    city.Father.Code = city.Code.ToCharArray()[0].ToString() + city.Code.ToCharArray()[1].ToString() + "00000000";
+                }
                 if (element.FirstChild.FirstChild.HasAttribute("href"))
                 {
                     var stringArray = URL.Split('/');
@@ -166,10 +246,12 @@ namespace SP3
         public override List<Place> TryGetChildren(string htmlResult)
         {
             CQ elements = new CQ(htmlResult)[".countytr"];
+            ChildrenShouldHas = elements.Length;
             List<Place> counties = new List<Place>();
             foreach (var element in elements)
             {
                 CountyPlace county = new CountyPlace();
+                county.Father = this;
                 if (element.FirstChild.FirstChild.HasAttribute("href"))
                 {
                     var stringArray = URL.Split('/');
@@ -185,7 +267,6 @@ namespace SP3
                     county.Code = element.FirstChild.FirstChild.ToString();
                     county.Traversed = true;
                 }
-                county.Father = this;
                 counties.Add(county);
             }
             return counties;
@@ -201,10 +282,12 @@ namespace SP3
         public override List<Place> TryGetChildren(string htmlResult)
         {
             CQ elements = new CQ(htmlResult)[".towntr"];
+            ChildrenShouldHas = elements.Length;
             List<Place> towns = new List<Place>();
             foreach (var element in elements)
             {
                 TownPlace town = new TownPlace();
+                town.Father = this;
                 if (element.FirstChild.FirstChild.HasAttribute("href"))
                 {
                     var stringArray = URL.Split('/');
@@ -220,7 +303,7 @@ namespace SP3
                     town.Code = element.FirstChild.FirstChild.ToString();
                     town.Traversed = true;
                 }
-                town.Father = this;
+
                 towns.Add(town);
             }
             return towns;
@@ -237,6 +320,7 @@ namespace SP3
         public override List<Place> TryGetChildren(string htmlResult)
         {
             CQ elements = new CQ(htmlResult)[".villagetr"];
+            ChildrenShouldHas = elements.Length;
             List<Place> villages = new List<Place>();
             foreach (var element in elements)
             {
