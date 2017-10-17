@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System;
 using CsQuery;
+using System.Threading;
 
 namespace SP3
 {
@@ -84,11 +85,14 @@ namespace SP3
                 _traversed = value;
                 if (value)
                 {
-                    Console.WriteLine(this.ToString() + " traversed");
+                    if (OnTraversed != null)
+                    {
+                        OnTraversed(this, new TraversedEventArgs() { ThisPlace = this });
+                    }
                     if (Father != null)
                     {
                         Father.ChildrenCurrentTraversed++;
-                        Console.WriteLine(Father.FullName() + " " + Father.ChildrenCurrentTraversed + "/" + Father.ChildrenShouldHas);
+                        //Console.WriteLine(Father.FullName() + " " + Father.ChildrenCurrentTraversed + "/" + Father.ChildrenShouldHas);
                         if (Father.ChildrenShouldHas == Father.ChildrenCurrentTraversed)
                         {
                             Father.Traversed = true;
@@ -117,15 +121,25 @@ namespace SP3
 
         public void Start()
         {
-            TryGetPage();
+            if (URL != null)
+            {
+                TryGetPage();
+            }
+            else
+            {
+                Traversed = true;
+            }
         }
 
         private void TryGetPage()
         {
+            //Thread.Sleep(3);
             WebClient client = new WebClient();
+
             client.DownloadStringCompleted -= OnDownloaded;
             client.DownloadStringAsync(new Uri(URL));
             client.DownloadStringCompleted += OnDownloaded;
+            Thread.Sleep(30);
         }
 
         private void OnDownloaded(object sender, DownloadStringCompletedEventArgs e)
