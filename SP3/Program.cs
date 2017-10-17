@@ -14,31 +14,31 @@ namespace SP3
         {
 
 
-            Nation china = new Nation
+            NationPlace china = new NationPlace
             {
                 Name = "中华人民共和国",
                 URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/",
-                //Type = "Nation",
-                PlaceType = PlaceType.Nation,
+                //Type = "NationPlace",
+                //PlaceType = PlaceType.NationPlace,
                 Traversed = false,
             };
             //Task task = china.ClickInAsync();
             //Console.WriteLine(task.AsyncState);
             china.Start();
-            Province hebei = new Province
+            ProvincePlace hebei = new ProvincePlace
             {
                 Name = "河北省",
                 URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/13.html",
-                //Type = "Nation",
+                //Type = "NationPlace",
                 PlaceType = PlaceType.Province,
                 Traversed = false,
             };
             hebei.Start();
-            City shijiazhuang = new City
+            CityPlace shijiazhuang = new CityPlace
             {
                 Name = "石家庄市",
                 URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/13/1301.html",
-                //Type = "Nation",
+                //Type = "NationPlace",
                 PlaceType = PlaceType.City,
                 Traversed = false,
             };
