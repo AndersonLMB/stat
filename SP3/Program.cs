@@ -10,32 +10,64 @@ namespace SP3
 {
     class Program
     {
-
+        private static Object thisLock = new Object();
 
         public static void DoSomethingAfterPageSuccess(object sender, PageSuccessEventArgs e)
         {
-            #region UI
-            Console.Write(e.ThisPlace + " : ");
-            e.ThisChildrenPlace.ForEach(i => Console.Write("{0} ", i.Name));
-            Console.Write("\n");
-            #endregion
+            lock (thisLock)
+            {
 
+                #region UI
+                Console.Write(e.ThisPlace + " : ");
+                e.ThisChildrenPlace.ForEach(i => Console.Write("{0} ", i.Name));
+                Console.Write("\n");
+                #endregion
+            }
             e.ThisChildrenPlace.ForEach(child =>
             {
+                Thread.Sleep(200);
+                //DownloadQuene.PlacesToClick.Enqueue(child);
+                //DownloadQuene.PlacesToClick.Dequeue().Start();
                 child.Start();
                 child.OnPageSuccess += new PageSuccessDelegate(DoSomethingAfterPageSuccess);
                 child.OnTraversed += new TraversedDelegate(DoSomethingAfterTraversed);
+                child.OnTraversedAdded += new TraversedAddedDelegate(DoSomethingAfterTraversedAdded);
             });
         }
 
         public static void DoSomethingAfterTraversed(object sender, TraversedEventArgs e)
         {
-            #region UI
-            Console.BackgroundColor = ConsoleColor.Yellow;
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine(sender + " traversed");
-            Console.ResetColor();
-            #endregion
+
+            lock (thisLock)
+            {
+                #region UI
+                Console.BackgroundColor = ConsoleColor.Red;
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine(sender + " traversed");
+                Console.ResetColor();
+                #endregion
+            }
+        }
+
+        public static void DoSomethingAfterTraversedAdded(object sender, TraversedAddedEventArgs e)
+        {
+            lock (thisLock)
+            {
+
+                Console.BackgroundColor = ConsoleColor.DarkBlue;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(e.AddedPlace + " + , " + e.ThisPlace + " ({0}/{1}) ", e.ThisPlace.ChildrenCurrentTraversed, e.ThisPlace.ChildrenShouldHas);
+                if (e.ThisPlace.ChildrenCurrentTraversed > e.ThisPlace.ChildrenShouldHas)
+                {
+
+                }
+                Console.ResetColor();
+            }
+            //lock (thisLock)
+            //{
+            //    Console
+            //}
+
         }
 
 
@@ -53,6 +85,7 @@ namespace SP3
             china.Start();
             china.OnPageSuccess += new PageSuccessDelegate(DoSomethingAfterPageSuccess);
             china.OnTraversed += new TraversedDelegate(DoSomethingAfterTraversed);
+            china.OnTraversedAdded += new TraversedAddedDelegate(DoSomethingAfterTraversedAdded);
 
             //ProvincePlace hebei = new ProvincePlace
             //{
@@ -93,7 +126,7 @@ namespace SP3
 
     static class DownloadQuene
     {
-        static public Queue<Place> PlacesToClick { get; set; }
+        static public Queue<Place> PlacesToClick = new Queue<Place>();
         static public void Start()
         {
 

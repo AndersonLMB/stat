@@ -17,6 +17,7 @@ namespace SP3
     }
     public delegate void TraversedDelegate(object sender, TraversedEventArgs e);
     public delegate void PageSuccessDelegate(object sender, PageSuccessEventArgs e);
+    public delegate void TraversedAddedDelegate(object sender, TraversedAddedEventArgs e);
 
     public class PageSuccessEventArgs
     {
@@ -47,6 +48,12 @@ namespace SP3
         }
     }
 
+    public class TraversedAddedEventArgs
+    {
+        public Place ThisPlace = new Place();
+        public Place AddedPlace = new Place();
+    }
+
     public class Place
     {
 
@@ -58,7 +65,7 @@ namespace SP3
         public Place Father { get; set; }
         public List<Place> ChildrenCollection { get; set; }
 
-        protected int ChildrenShouldHas { get; set; }
+        public int ChildrenShouldHas { get; set; }
 
         public int ChildrenCurrentTraversed { get; set; }
 
@@ -92,6 +99,10 @@ namespace SP3
                     if (Father != null)
                     {
                         Father.ChildrenCurrentTraversed++;
+                        if (Father.OnTraversedAdded != null)
+                        {
+                            Father.OnTraversedAdded(this, new TraversedAddedEventArgs() { AddedPlace = this, ThisPlace = Father });
+                        }
                         //Console.WriteLine(Father.FullName() + " " + Father.ChildrenCurrentTraversed + "/" + Father.ChildrenShouldHas);
                         if (Father.ChildrenShouldHas == Father.ChildrenCurrentTraversed)
                         {
@@ -105,12 +116,14 @@ namespace SP3
         public Place()
         {
             ChildrenCurrentTraversed = 0;
-            Traversed = false;
+            //Traversed = false;
         }
 
         public event PageSuccessDelegate OnPageSuccess;
 
         public event TraversedDelegate OnTraversed;
+
+        public event TraversedAddedDelegate OnTraversedAdded;
 
         public async Task ClickInAsync()
         {
@@ -139,7 +152,7 @@ namespace SP3
             client.DownloadStringCompleted -= OnDownloaded;
             client.DownloadStringAsync(new Uri(URL));
             client.DownloadStringCompleted += OnDownloaded;
-            Thread.Sleep(30);
+            //Thread.Sleep(30);
         }
 
         private void OnDownloaded(object sender, DownloadStringCompletedEventArgs e)
@@ -344,7 +357,7 @@ namespace SP3
                     Code = element.FirstChild.FirstChild.ToString(),
                     CXType = element.ChildNodes[1].FirstChild.ToString(),
                     Father = this,
-                    Traversed = true
+                    //Traversed = true
                 });
             }
             return villages;
@@ -356,7 +369,6 @@ namespace SP3
         public string CXType { get; set; }
         public VillagePlace()
         {
-            PlaceType = PlaceType.Village;
 
         }
         public override List<Place> TryGetChildren(string result)
