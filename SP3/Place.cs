@@ -216,6 +216,7 @@ namespace SP3
                 if (element.HasAttribute("href"))
                 {
                     province.URL = this.URL + element.Attributes.GetAttribute("href");
+                    province.Code = province.URL.Split('/')[province.URL.Split('/').Length - 1].Split('.')[0] + "0000000000";
                 }
 
                 provinces.Add(province);
@@ -244,10 +245,10 @@ namespace SP3
                     Code = element.FirstChild.FirstChild.FirstChild.ToString(),
                 };
 
-                if (city.Father.Code == null)
-                {
-                    city.Father.Code = city.Code.ToCharArray()[0].ToString() + city.Code.ToCharArray()[1].ToString() + "00000000";
-                }
+                //if (city.Father.Code == null)
+                //{
+                //    city.Father.Code = city.Code.ToCharArray()[0].ToString() + city.Code.ToCharArray()[1].ToString() + "00000000";
+                //}
                 if (element.FirstChild.FirstChild.HasAttribute("href"))
                 {
                     var stringArray = URL.Split('/');

@@ -16,18 +16,15 @@ namespace SP3
         {
             lock (thisLock)
             {
-
                 #region UI
-                Console.Write(e.ThisPlace + " : ");
+                Console.Write(e.ThisPlace.Code + " " + e.ThisPlace + " : ");
                 e.ThisChildrenPlace.ForEach(i => Console.Write("{0} ", i.Name));
                 Console.Write("\n");
                 #endregion
             }
             e.ThisChildrenPlace.ForEach(child =>
             {
-                Thread.Sleep(200);
-                //DownloadQuene.PlacesToClick.Enqueue(child);
-                //DownloadQuene.PlacesToClick.Dequeue().Start();
+                Thread.Sleep(300);
                 child.Start();
                 child.OnPageSuccess += new PageSuccessDelegate(DoSomethingAfterPageSuccess);
                 child.OnTraversed += new TraversedDelegate(DoSomethingAfterTraversed);
@@ -37,13 +34,12 @@ namespace SP3
 
         public static void DoSomethingAfterTraversed(object sender, TraversedEventArgs e)
         {
-
             lock (thisLock)
             {
                 #region UI
                 Console.BackgroundColor = ConsoleColor.Red;
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine(sender + " traversed");
+                Console.WriteLine(e.ThisPlace.Code + " " + sender + " traversed");
                 Console.ResetColor();
                 #endregion
             }
@@ -53,34 +49,26 @@ namespace SP3
         {
             lock (thisLock)
             {
-
                 Console.BackgroundColor = ConsoleColor.DarkBlue;
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine(e.AddedPlace + " + , " + e.ThisPlace + " ({0}/{1}) ", e.ThisPlace.ChildrenCurrentTraversed, e.ThisPlace.ChildrenShouldHas);
+                Console.WriteLine(e.AddedPlace.Code + " " + e.AddedPlace + " + , " + e.ThisPlace + " ({0}/{1}) ", e.ThisPlace.ChildrenCurrentTraversed, e.ThisPlace.ChildrenShouldHas);
                 if (e.ThisPlace.ChildrenCurrentTraversed > e.ThisPlace.ChildrenShouldHas)
                 {
 
                 }
                 Console.ResetColor();
             }
-            //lock (thisLock)
-            //{
-            //    Console
-            //}
-
         }
-
 
         public static void Main(string[] args)
         {
-
-
             NationPlace china = new NationPlace
             {
                 Name = "中华人民共和国",
                 URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/",
                 PlaceType = PlaceType.Nation,
                 Traversed = false,
+                Code = "000000000000"
             };
             china.Start();
             china.OnPageSuccess += new PageSuccessDelegate(DoSomethingAfterPageSuccess);
