@@ -8,9 +8,25 @@ using System.Threading.Tasks;
 using System;
 using CsQuery;
 using System.Threading;
+using NpgsqlTypes;
+using Npgsql.PostgresTypes;
 
 namespace SP3
 {
+    public class PlaceDBModel
+    {
+        public string placecode { get; set; }
+        public string placename { get; set; }
+        public string placetype { get; set; }
+        public int placeson { get; set; }
+        public int placesontraversed { get; set; }
+        public bool placetraversed { get; set; }
+        public bool placepagesuccess { get; set; }
+        public string placecxtype { get; set; }
+        public string placeurl { get; set; }
+        public int placefather { get; set; }
+    }
+
     public enum PlaceType
     {
         Nation, Province, City, County, Town, Village
@@ -142,6 +158,7 @@ namespace SP3
             {
                 Traversed = true;
             }
+
         }
 
         private void TryGetPage()
@@ -293,7 +310,6 @@ namespace SP3
                 {
                     county.Name = element.ChildNodes[1].FirstChild.ToString();
                     county.Code = element.FirstChild.FirstChild.ToString();
-                    county.Traversed = true;
                 }
                 counties.Add(county);
             }
@@ -329,7 +345,7 @@ namespace SP3
                 {
                     town.Name = element.ChildNodes[1].FirstChild.ToString();
                     town.Code = element.FirstChild.FirstChild.ToString();
-                    town.Traversed = true;
+                    //town.Traversed = true;
                 }
 
                 towns.Add(town);
@@ -358,7 +374,6 @@ namespace SP3
                     Code = element.FirstChild.FirstChild.ToString(),
                     CXType = element.ChildNodes[1].FirstChild.ToString(),
                     Father = this,
-                    //Traversed = true
                 });
             }
             return villages;

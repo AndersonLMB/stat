@@ -5,6 +5,16 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Collections;
 using System.Threading;
+using Npgsql;
+using Npgsql.Logging;
+using NpgsqlTypes;
+using Npgsql.PostgresTypes;
+using Dapper;
+using System.Configuration;
+using System.Data.Common;
+using System.Data;
+
+
 
 namespace SP3
 {
@@ -25,10 +35,11 @@ namespace SP3
             e.ThisChildrenPlace.ForEach(child =>
             {
                 Thread.Sleep(300);
-                child.Start();
                 child.OnPageSuccess += new PageSuccessDelegate(DoSomethingAfterPageSuccess);
                 child.OnTraversed += new TraversedDelegate(DoSomethingAfterTraversed);
                 child.OnTraversedAdded += new TraversedAddedDelegate(DoSomethingAfterTraversedAdded);
+                child.Start();
+
             });
         }
 
@@ -62,18 +73,35 @@ namespace SP3
 
         public static void Main(string[] args)
         {
-            NationPlace china = new NationPlace
-            {
-                Name = "中华人民共和国",
-                URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/",
-                PlaceType = PlaceType.Nation,
-                Traversed = false,
-                Code = "000000000000"
-            };
-            china.Start();
-            china.OnPageSuccess += new PageSuccessDelegate(DoSomethingAfterPageSuccess);
-            china.OnTraversed += new TraversedDelegate(DoSomethingAfterTraversed);
-            china.OnTraversedAdded += new TraversedAddedDelegate(DoSomethingAfterTraversedAdded);
+
+            ////------
+            //NationPlace china = new NationPlace
+            //{
+            //    Name = "中华人民共和国",
+            //    URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/",
+            //    PlaceType = PlaceType.Nation,
+            //    Traversed = false,
+            //    Code = "000000000000"
+            //};
+            //china.OnPageSuccess += new PageSuccessDelegate(DoSomethingAfterPageSuccess);
+            //china.OnTraversed += new TraversedDelegate(DoSomethingAfterTraversed);
+            //china.OnTraversedAdded += new TraversedAddedDelegate(DoSomethingAfterTraversedAdded);
+            //china.Start();
+            ////------
+
+            var connection = new Npgsql.NpgsqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["places"].ConnectionString);
+            connection.Open();
+            var table = connection.Query<PlaceDBModel>("SELECT * FROM public.places");
+            //INSERT INTO public.places(    placecode, placename, placetype, placeson, placesontraversed, placetraversed, placepagesuccess, placecxtype, placeurl, placefather)    VALUES('111', 'ddd', 'sss', 2, 1, false, false, '11', 'sd', 'sdefx');
+            IDbCommand command = connection.CreateCommand();
+            //string sql = "INSERT INTO public.places(placecode, placename, placetype, placeson, placesontraversed, placetraversed, placepagesuccess, placecxtype, placeurl, placefather) " +
+            //    "VALUES(@placecode,@place   )";
+
+            //string query= "INSERT INTO "
+            //NpgsqlCommand command = new NpgsqlCommand();
+            //command.Parameters.Add()
+            
+            ;
 
             //ProvincePlace hebei = new ProvincePlace
             //{
