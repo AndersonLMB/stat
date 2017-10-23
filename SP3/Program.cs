@@ -74,33 +74,33 @@ namespace SP3
         public static void Main(string[] args)
         {
 
-            ////------
-            //NationPlace china = new NationPlace
-            //{
-            //    Name = "中华人民共和国",
-            //    URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/",
-            //    PlaceType = PlaceType.Nation,
-            //    Traversed = false,
-            //    Code = "000000000000"
-            //};
-            //china.OnPageSuccess += new PageSuccessDelegate(DoSomethingAfterPageSuccess);
-            //china.OnTraversed += new TraversedDelegate(DoSomethingAfterTraversed);
-            //china.OnTraversedAdded += new TraversedAddedDelegate(DoSomethingAfterTraversedAdded);
-            //china.Start();
-            ////------
+            //------
+            NationPlace china = new NationPlace
+            {
+                Name = "中华人民共和国",
+                URL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/",
+                PlaceType = PlaceType.Nation,
+                Traversed = false,
+                Code = "000000000000"
+            };
+            china.OnPageSuccess += new PageSuccessDelegate(DoSomethingAfterPageSuccess);
+            china.OnTraversed += new TraversedDelegate(DoSomethingAfterTraversed);
+            china.OnTraversedAdded += new TraversedAddedDelegate(DoSomethingAfterTraversedAdded);
+            china.Start();
+            //------
 
-            var connection = new Npgsql.NpgsqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["places"].ConnectionString);
-            connection.Open();
-            var table = connection.Query<PlaceDBModel>("SELECT * FROM public.places");
+            //var connection = new Npgsql.NpgsqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["places"].ConnectionString);
+            //connection.Open();
+            //var table = connection.Query<PlaceDBModel>("SELECT * FROM public.places");
             //INSERT INTO public.places(    placecode, placename, placetype, placeson, placesontraversed, placetraversed, placepagesuccess, placecxtype, placeurl, placefather)    VALUES('111', 'ddd', 'sss', 2, 1, false, false, '11', 'sd', 'sdefx');
-            IDbCommand command = connection.CreateCommand();
+            //IDbCommand command = connection.CreateCommand();
             //string sql = "INSERT INTO public.places(placecode, placename, placetype, placeson, placesontraversed, placetraversed, placepagesuccess, placecxtype, placeurl, placefather) " +
             //    "VALUES(@placecode,@place   )";
 
             //string query= "INSERT INTO "
             //NpgsqlCommand command = new NpgsqlCommand();
             //command.Parameters.Add()
-            
+
             ;
 
             //ProvincePlace hebei = new ProvincePlace
