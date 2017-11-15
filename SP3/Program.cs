@@ -13,13 +13,17 @@ using Dapper;
 using System.Configuration;
 using System.Data.Common;
 using System.Data;
-
+using System.IO;
 
 
 namespace SP3
 {
+    //INSERT INTO public.places(placecode, placename, placetype, placeson, placesontraversed, placetraversed, placepagesuccess, placecxtype, placeurl, placefather, placeisendpoint) VALUES('s', 's', 's', 1, 1, true, true, '1', 'ss', 'ssss', false);
+
     class Program
     {
+        public static StreamWriter sw = new StreamWriter("D:\\testsql.sql");
+
         private static Object thisLock = new Object();
 
         public static void DoSomethingAfterPageSuccess(object sender, PageSuccessEventArgs e)
@@ -30,6 +34,7 @@ namespace SP3
                 Console.Write(e.ThisPlace.Code + " " + e.ThisPlace + " : ");
                 e.ThisChildrenPlace.ForEach(i => Console.Write("{0} ", i.Name));
                 Console.Write("\n");
+                e.ThisChildrenPlace.ForEach(i => sw.WriteLine(i.InsertSelf()));
                 #endregion
             }
             e.ThisChildrenPlace.ForEach(child =>

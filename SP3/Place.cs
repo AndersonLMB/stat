@@ -72,7 +72,7 @@ namespace SP3
 
     public class Place
     {
-
+        public bool IsEndPoint { get; set; }
         public string Name { get; set; }
         public string URL { get; set; }
         public string Code { get; set; }
@@ -150,13 +150,16 @@ namespace SP3
 
         public void Start()
         {
+            //URL不为空
             if (URL != null)
             {
                 TryGetPage();
+                IsEndPoint = false;
             }
             else
             {
                 Traversed = true;
+                IsEndPoint = true;
             }
 
         }
@@ -208,6 +211,38 @@ namespace SP3
         {
             return FullName();
         }
+
+
+        //返回插入字段
+        public string InsertSelf()
+        {
+
+            ////string temp = "\'{0}\', \'{1}\', \'{2}\', {3}, {4}, {5},{6} , '{7}', '{8}', '{9}', '{10}'";
+            //string temp = "INSERT INTO public.places(placecode, placename, placetype, placeson, placesontraversed, placetraversed, placepagesuccess, placecxtype, placeurl, placefather, placeisendpoint) VALUES('{0}', '{1}', '{2}', {3}, {4}, {5},{6} , '{7}', '{8}', '{9}', '{10}';";
+            ////string sqlInsert = string.Format(temp, [Code.ToString(), Name.ToString(), PlaceType.ToString(), ChildrenShouldHas.ToString(), ChildrenCurrentTraversed.ToString(), Traversed.ToString(), PageSuccess.ToString(), "", URL.ToString(), IsEndPoint.ToString()]);
+//            string sqlInsert = "INSERT INTO public.places(placecode, placename, placetype, placeson, placesontraversed, placetraversed, placepagesuccess, placecxtype, placeurl, placefather, placeisendpoint) VALUES('" + Code.ToString() + "',"
+//                + "'" + Name.ToString() + "',"
+//+ "'" + PlaceType.ToString() + "',"
+//+ "'" + ChildrenShouldHas.ToString() + "',"
+//+ "'" + ChildrenCurrentTraversed.ToString() + "',"
+//+ "'" + Traversed.ToString() + "',"
+//+ "'" + PageSuccess.ToString() + "',"
+//+ "'" + .ToString() + "',"
+//+ "'" + Name.ToString() + "',"
+//+ "'" + Name.ToString() + "',"
+//+ "'" + Name.ToString() + "',"
+//+ "'" + Name.ToString() + "',"
+//+ "'" + Name.ToString() + "',"
+
+
+            ////string sqlInsert= string.Format()
+            //string temp1 = "{0},{1}";
+            //string t1 = string.Format(temp1, "s", "ss");
+            ////"INSERT INTO public.places(placecode, placename, placetype, placeson, placesontraversed, placetraversed, placepagesuccess, placecxtype, placeurl, placefather, placeisendpoint) VALUES('s', 's', 's', 1, 1, true, true, '1', 'ss', 'ssss', false);";
+            return null;
+            ////return null;
+        }
+
 
         delegate List<Place> TryGetChildrenCollection(string htmlResult);
     }
