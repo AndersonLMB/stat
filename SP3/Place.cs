@@ -216,33 +216,68 @@ namespace SP3
         //返回插入字段
         public string InsertSelf()
         {
-
+            string sqlInsert;
             ////string temp = "\'{0}\', \'{1}\', \'{2}\', {3}, {4}, {5},{6} , '{7}', '{8}', '{9}', '{10}'";
             //string temp = "INSERT INTO public.places(placecode, placename, placetype, placeson, placesontraversed, placetraversed, placepagesuccess, placecxtype, placeurl, placefather, placeisendpoint) VALUES('{0}', '{1}', '{2}', {3}, {4}, {5},{6} , '{7}', '{8}', '{9}', '{10}';";
             ////string sqlInsert = string.Format(temp, [Code.ToString(), Name.ToString(), PlaceType.ToString(), ChildrenShouldHas.ToString(), ChildrenCurrentTraversed.ToString(), Traversed.ToString(), PageSuccess.ToString(), "", URL.ToString(), IsEndPoint.ToString()]);
-//            string sqlInsert = "INSERT INTO public.places(placecode, placename, placetype, placeson, placesontraversed, placetraversed, placepagesuccess, placecxtype, placeurl, placefather, placeisendpoint) VALUES('" + Code.ToString() + "',"
-//                + "'" + Name.ToString() + "',"
-//+ "'" + PlaceType.ToString() + "',"
-//+ "'" + ChildrenShouldHas.ToString() + "',"
-//+ "'" + ChildrenCurrentTraversed.ToString() + "',"
-//+ "'" + Traversed.ToString() + "',"
-//+ "'" + PageSuccess.ToString() + "',"
-//+ "'" + .ToString() + "',"
-//+ "'" + Name.ToString() + "',"
-//+ "'" + Name.ToString() + "',"
-//+ "'" + Name.ToString() + "',"
-//+ "'" + Name.ToString() + "',"
-//+ "'" + Name.ToString() + "',"
+            if (URL != null)
+            {
+                sqlInsert = "INSERT INTO public.places(placecode, placename, placetype, placeson, placesontraversed, placetraversed, placepagesuccess, placeurl, placefather, placeisendpoint) VALUES('" + Code.ToString() + "',"
+     + "'" + Name.ToString() + "',"
+     + "'" + PlaceType.ToString() + "',"
+     + "" + ChildrenShouldHas.ToString() + ","
+     + "" + ChildrenCurrentTraversed.ToString() + ","
+     + "" + Traversed.ToString() + ","
+     + "" + PageSuccess.ToString() + ","
+     + "'" + URL.ToString() + "',"
+     + "'" + Father.Code.ToString() + "',"
+     + "" + IsEndPoint.ToString() + ");";
+            }
+            else
+            {
+                sqlInsert = "INSERT INTO public.places(placecode, placename, placetype, placeson, placesontraversed, placetraversed, placepagesuccess, placefather, placeisendpoint) VALUES('" + Code.ToString() + "',"
++ "'" + Name.ToString() + "',"
++ "'" + PlaceType.ToString() + "',"
++ "" + ChildrenShouldHas.ToString() + ","
++ "" + ChildrenCurrentTraversed.ToString() + ","
++ "" + Traversed.ToString() + ","
++ "" + PageSuccess.ToString() + ","
++ "'" + Father.Code.ToString() + "',"
++ "" + IsEndPoint.ToString() + ");";
+            }
 
 
             ////string sqlInsert= string.Format()
             //string temp1 = "{0},{1}";
             //string t1 = string.Format(temp1, "s", "ss");
             ////"INSERT INTO public.places(placecode, placename, placetype, placeson, placesontraversed, placetraversed, placepagesuccess, placecxtype, placeurl, placefather, placeisendpoint) VALUES('s', 's', 's', 1, 1, true, true, '1', 'ss', 'ssss', false);";
-            return null;
+            return sqlInsert;
             ////return null;
         }
 
+        public string UpdateSelfTraversed()
+        {
+            string sqlUpdate;
+            //UPDATE public.places SET placecode=?, placename=?, placetype=?, placeson=?, placesontraversed=?, placetraversed=?, placepagesuccess=?, placecxtype=?, placeurl=?, placefather=?, placeisendpoint WHERE<condition>;
+            sqlUpdate = "UPDATE public.places SET placetraversed=true WHERE placecode='" + Code.ToString() + "';";
+            return sqlUpdate;
+        }
+
+        public string UpdateSelfSonsCount()
+        {
+            string sqlUpdate;
+            sqlUpdate = "UPDATE public.places SET placeson=" + ChildrenShouldHas.ToString() + " WHERE placecode='" + Code.ToString() + "';";
+            return sqlUpdate;
+        }
+
+        public string UpdateSelfTraversedAdded()
+        {
+            string sqlUpdate;
+            sqlUpdate = "UPDATE public.places SET placesontraversed=" + ChildrenCurrentTraversed.ToString() + " WHERE placecode='" + Code.ToString() + "';";
+            return sqlUpdate;
+        }
+
+        
 
         delegate List<Place> TryGetChildrenCollection(string htmlResult);
     }

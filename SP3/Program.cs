@@ -22,7 +22,7 @@ namespace SP3
 
     class Program
     {
-        public static StreamWriter sw = new StreamWriter("D:\\testsql.sql");
+        public static StreamWriter sw = new StreamWriter("C:\\test\\testsql.sql");
 
         private static Object thisLock = new Object();
 
@@ -36,6 +36,7 @@ namespace SP3
                 Console.Write("\n");
                 e.ThisChildrenPlace.ForEach(i => sw.WriteLine(i.InsertSelf()));
                 #endregion
+                sw.WriteLine(e.ThisPlace.UpdateSelfSonsCount());
             }
             e.ThisChildrenPlace.ForEach(child =>
             {
@@ -44,7 +45,6 @@ namespace SP3
                 child.OnTraversed += new TraversedDelegate(DoSomethingAfterTraversed);
                 child.OnTraversedAdded += new TraversedAddedDelegate(DoSomethingAfterTraversedAdded);
                 child.Start();
-
             });
         }
 
@@ -57,6 +57,7 @@ namespace SP3
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine(e.ThisPlace.Code + " " + sender + " traversed");
                 Console.ResetColor();
+                sw.WriteLine(e.ThisPlace.UpdateSelfTraversed());
                 #endregion
             }
         }
@@ -72,6 +73,7 @@ namespace SP3
                 {
 
                 }
+                sw.WriteLine(e.ThisPlace.UpdateSelfTraversedAdded());
                 Console.ResetColor();
             }
         }
@@ -79,7 +81,10 @@ namespace SP3
         public static void Main(string[] args)
         {
 
+            //INSERT INTO public.places(placecode, placename, placetype, placeson, placesontraversed, placetraversed, placepagesuccess, placecxtype, placeurl, placefather, placeisendpoint) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
             //------
+
+            sw.WriteLine("INSERT INTO public.places(placecode, placename, placetype, placeson, placesontraversed, placetraversed, placepagesuccess, placeurl, placeisendpoint) VALUES('000000000000', '中华人民共和国', 'Nation', 0, 0, false, false, 'http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/', false);");
             NationPlace china = new NationPlace
             {
                 Name = "中华人民共和国",
